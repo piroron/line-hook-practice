@@ -37,12 +37,10 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     const client = new Client(config) // will throw a compile error
 
     const hook: WebhookRequestBody = req.body;
-    console.log(hook.destination)
+    context.log(hook.destination)
 
     for (const ev of hook.events) {
         if('message' in ev) {
-            console.log(ev.message);
-
             if('text' in ev.message) {
 
                 if(ev.message.text === "20人超") {
