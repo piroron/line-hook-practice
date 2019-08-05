@@ -1,20 +1,21 @@
-import { PostbackAction, PostbackEvent, QuickReply, QuickReplyItem, TextMessage } from '@line/bot-sdk';
+import { PostbackAction, PostbackEvent, QuickReplyItem, TextMessage, Message } from '@line/bot-sdk';
 import { Questions, Question } from '../enquete';
-import { isContext } from 'vm';
 
+
+export declare type Count = 'one' | 'two';
 export class PostbackExchanger {
-    readonly separator: ':';
+    private separator = ':';
     constructor(
         private question: Questions
     ) {
 
     }
 
-    start(): TextMessage {
+    start(): Message {
         return this.toText(this.question.items[0]);
     }
 
-    next(event: PostbackEvent): TextMessage {
+    next = (event: PostbackEvent): Message => {
         const data = event.postback.data;
         const answers = data.split(this.separator);
         const last = answers[answers.length - 1];
@@ -33,21 +34,21 @@ export class PostbackExchanger {
                 } else {
                     return this.toText(this.question.items[index + 1], data);
                 }
-                break;
             }
         }
 
         return this.start();
     }
 
-    private toText(question: Question, preAnswer: string = ''): TextMessage {
-        const prefix = preAnswer.length === 0 ? '' : `${preAnswer}:`;
+    private toText = (question: Question, preAnswer: string = ''): Message => {
+        const prefix = preAnswer.length === 0 ? '' : `${preAnswer}${this.separator}`;
         const quicks: QuickReplyItem[] = question.answers.map(v => {
             const res: QuickReplyItem =
             {
                 type: "action",
                 action: {
                     type: "postback",
+                    displayText:'',
                     label: v.text,
                     data: `${prefix}${question.data}=${v.data}`,
                     text: v.text                
@@ -66,10 +67,20 @@ export class PostbackExchanger {
         return rep;
     }
 
-    private end(event: PostbackEvent): TextMessage {
+    private end(event: PostbackEvent): Message {
+        const data = event.postback.data;
+        const answers = data.split(this.separator);
+        const results = answers.map(answer => {
+            const qa = answer.split('=');
+            const org = this.question.items.find(q => q.data === qa[0]);
+            const ans = org.answers.find(a => a.data === qa[1]);
+            return `${org.shortText}: ${ans.text}`;
+        }
+        )
+        const result = results.join('\n');
         const rep: TextMessage = {
             type: 'text',
-            text: 'ご回答ありがとうございました！'
+            text: 'ご回答ありがとうございました！\n' + result
         };
         return rep;
     }
