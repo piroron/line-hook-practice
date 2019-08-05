@@ -17,6 +17,8 @@ import {
     MessageEvent,
     validateSignature,
   } from "@line/bot-sdk";
+import * as question from './enquete';
+import { PostbackExchanger } from "./services/Postback";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a request.');
@@ -41,59 +43,64 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
     for (const ev of hook.events) {
         if('message' in ev) {
-            console.log(ev.message);
 
             if('text' in ev.message) {
+                if(ev.message.text === 'start') {
+                    // start enquete
+                    context.log('question: start');
+                    const pb = new PostbackExchanger(new question.Questions());
+                    const reply = pb.start();
+                    client.replyMessage(ev.replyToken, reply);
 
-                if(ev.message.text === "20人超") {
-                    client.replyMessage(ev.replyToken,
-                        {
-                            type: "text",
-                            text: "select 20 over."
-                        }
-                    )
-                } else {
-
-                    client.replyMessage(ev.replyToken,
-                        {
-                            type: "text",
-                            text: "select your favorite",
-                            quickReply: {
-                                items: [
-                                    {
-                                        type: "action",
-                                        action: {
-                                            type: "message",
-                                            label: "over 20",
-                                            text: "20人超"
-                                        }
-                                    },
-                                    {
-                                        type: "action",
-                                        action: {
-                                            type: "message",
-                                            label: "over 50",
-                                            text: "50人超"
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    )
                 }
-                // client.replyMessage(ev.replyToken, 
-                //     new Array(
-                //     {
-                //         type: "text",
-                //         text: "This reply send for bot service."
-                //     },
-                //     {
-                //         type: "text",
-                //         text: ev.message.text
-                //     }
-                //     )
-                // )
             }
+
+            // const message = ev.message;
+
+            // if('text' in message) {
+
+            //     if(message.text === "20人超") {
+            //         client.replyMessage(ev.replyToken,
+            //             {
+            //                 type: "text",
+            //                 text: "select 20 over."
+            //             }
+            //         )
+            //     } else {
+
+            //         client.replyMessage(ev.replyToken,
+            //             {
+            //                 type: "text",
+            //                 text: "select your favorite",
+            //                 quickReply: {
+            //                     items: [
+            //                         {
+            //                             type: "action",
+            //                             action: {
+            //                                 type: "message",
+            //                                 label: "over 20",
+            //                                 text: "20人超"
+            //                             }
+            //                         },
+            //                         {
+            //                             type: "action",
+            //                             action: {
+            //                                 type: "message",
+            //                                 label: "over 50",
+            //                                 text: "50人超"
+            //                             }
+            //                         }
+            //                     ]
+            //                 }
+            //             }
+            //         )
+            //     }
+            // } 
+        } else if ('postback' in ev) {
+            context.log('question: next');
+            const pb = new PostbackExchanger(new question.Questions());
+            const reply = pb.next(ev);
+            client.replyMessage(ev.replyToken, reply);
         }
     }
 
