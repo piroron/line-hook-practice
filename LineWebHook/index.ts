@@ -98,6 +98,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             // } 
         } else if ('postback' in ev) {
             context.log('question: next');
+            context.log(`postback data: ${ev.postback.data}`);
             const pb = new PostbackExchanger(new question.Questions());
             const reply = pb.next(ev);
             client.replyMessage(ev.replyToken, reply);

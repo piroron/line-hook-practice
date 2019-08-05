@@ -1,5 +1,6 @@
 import { PostbackAction, PostbackEvent, QuickReply, QuickReplyItem, TextMessage } from '@line/bot-sdk';
 import { Questions, Question } from '../enquete';
+import { isContext } from 'vm';
 
 export class PostbackExchanger {
     readonly separator: ':';
