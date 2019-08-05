@@ -1,0 +1,11 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+      "AzureWebJobsStorage": "",
+      "FUNCTIONS_WORKER_RUNTIME": "node",
+      // Set the code obtained in the line developer console. (https://developers.line.biz/ja/)
+      "CHANNEL_SECRET": "", // set your channel secret.
+      "CHANNEL_ACCESS_TOKEN": "" //set your channel access token.
+    }
+  }
+  

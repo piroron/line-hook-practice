@@ -1,4 +1,4 @@
-//process.env.API_BASE_URL = "http://localhost:8080/";
+// process.env.API_BASE_URL = "http://localhost:8080/";
 
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
 import {
