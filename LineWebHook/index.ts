@@ -19,6 +19,7 @@ import {
   } from "@line/bot-sdk";
 import * as question from './enquete';
 import { PostbackExchanger } from "./services/Postback";
+import { LinkBuilder } from "./links";
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     context.log('HTTP trigger function processed a request.');
@@ -35,11 +36,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         };
         return
     }
+    context.log("signature: " + req.headers["x-line-signature"]);
 
     const client = new Client(config) // will throw a compile error
 
     const hook: WebhookRequestBody = req.body;
-    console.log(hook.destination)
+    context.log(req.rawBody)
 
     for (const ev of hook.events) {
         if('message' in ev) {
@@ -52,6 +54,10 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                     const reply = pb.start();
                     client.replyMessage(ev.replyToken, reply);
 
+                } else if(ev.message.text === 'links') {
+                    context.log('send links: start');
+                    const link = new LinkBuilder();
+                    client.replyMessage(ev.replyToken, link.create());
                 }
             }
 
